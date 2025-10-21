@@ -6,6 +6,7 @@
 #include <unistd.h>
 namespace foelsche::linux_ns
 {
+	/// a RAII wrapper for a FD
 struct close
 {	int m_i;
 	close(void) = delete;
@@ -33,6 +34,7 @@ struct close
 			::close(m_i);
 	}
 };
+	/// wraps the open system call
 std::expected<close, std::system_error> open(const char *const _p, const int _iFlags, const mode_t _iMode = 00600)
 {	if (const auto i = ::open(_p, _iFlags, _iMode); i < 0)
 		return std::unexpected(
@@ -48,6 +50,7 @@ std::expected<close, std::system_error> open(const char *const _p, const int _iF
 	else
 		return i;
 }
+	/// a RAII wrapper for a memory mapping
 struct munmap
 {	void *m_p;
 	std::size_t m_iL;
@@ -81,6 +84,7 @@ struct munmap
 			::munmap(m_p, m_iL);
 	}
 };
+	/// wraps the mmap() system call
 std::expected<munmap, std::system_error> mmap(void*const _pA, const std::size_t _iL, const int _iProt, const int _iFlags, const int _iFD, const std::ptrdiff_t _iOffset)
 {	if (const auto p = ::mmap(_pA, _iL, _iProt, _iFlags, _iFD, _iOffset); !p)
 		return std::unexpected(
@@ -93,9 +97,4 @@ std::expected<munmap, std::system_error> mmap(void*const _pA, const std::size_t 
 	else
 		return munmap(p, _iL);
 }
-/*
-void *mmap(void addr[.length], size_t length, int prot, int flags,
-                  int fd, off_t offset);
-       int munmap(void addr[.length], size_t length);
- */
 }
