@@ -14,14 +14,20 @@ int main(int, char**argv)
 	{	std::cout << sFD.error().what() << std::endl;
 		return 1;
 	}
+	auto sSize = [&](const int fd) -> std::expected<std::size_t, std::system_error>
+	{	struct stat st;
+		if (fstat(fd, &st) < 0)
+			return std::unexpected(std::system_error(errno, std::generic_category(), "fstat failed"));
+		return st.st_size;
+	}(sFD.value().m_i);
+	if (!sSize.has_value())
+	{	std::cout << sSize.error().what() << std::endl;
+		return 1;
+	}
 		/// creating the memory mapping
 	auto sMap = foelsche::linux_ns::mmap(
 		nullptr,
-		[&](void)
-		{	struct stat st;
-			fstat(sFD.value().m_i, &st);
-			return st.st_size;
-		}(),
+		sSize.value(),
 		PROT_READ,
 		MAP_SHARED,
 		sFD.value().m_i,
