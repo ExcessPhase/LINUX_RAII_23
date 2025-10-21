@@ -86,7 +86,7 @@ struct munmap
 };
 	/// wraps the mmap() system call
 std::expected<munmap, std::system_error> mmap(void*const _pA, const std::size_t _iL, const int _iProt, const int _iFlags, const int _iFD, const std::ptrdiff_t _iOffset)
-{	if (const auto p = ::mmap(_pA, _iL, _iProt, _iFlags, _iFD, _iOffset); !p)
+{	if (const auto p = ::mmap(_pA, _iL, _iProt, _iFlags, _iFD, _iOffset); p == MAP_FAILED)
 		return std::unexpected(
 			std::system_error(
 				errno,
